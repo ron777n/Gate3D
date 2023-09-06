@@ -1,6 +1,7 @@
 #pragma once
 #include "Definitions.hpp"
 
+
 class Renderer
 {
 private:

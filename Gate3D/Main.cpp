@@ -11,7 +11,6 @@ void Program::update()
 {
     View.resetFrame();
     Shape shape = this->_shapes.back();
-
     for (const Face& face : shape.getFaces())
     {
         // View.drawPolygon(shape.getFaces()[4]);
@@ -25,7 +24,7 @@ void Program::update()
 
 void Program::onKeyDown(char key)
 {
-    Point cameraMovement = { 0, 0, 0 };
+    Point cameraMovement;
     switch (key)
     {
     case VK_RIGHT:

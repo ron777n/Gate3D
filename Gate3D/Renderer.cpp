@@ -55,11 +55,7 @@ void Renderer::drawLine(const Line& line)
     a[0] = line.a[0] + this->_cameraPose[0];
     a[1] = line.a[1] - this->_cameraPose[1];
     if ((line.a[2] - this->_cameraPose[2]))
-    {
-        float diff = 1000.0 / (line.a[2] - this->_cameraPose[2]);
-        a *= diff;
-
-    }
+        a *= 1000 / (line.a[2] - this->_cameraPose[2]);
     b[0] = line.b[0] + this->_cameraPose[0];
     b[1] = line.b[1] - this->_cameraPose[1];
     if (line.b[2] - this->_cameraPose[2])
@@ -73,7 +69,7 @@ void Renderer::drawLine(const Line& line)
     {
         if (abs(a[0]) < this->_frame.width / 2 and abs(a[1]) < this->_frame.height / 2)
         {
-            (*this)[a] = 0x00000000;
+            (*this)[a] = 0x00FF0000;
         }
         int e2 = 2 * err;
         if (e2 > -dy)
