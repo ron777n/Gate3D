@@ -6,6 +6,7 @@
 #include <sstream>
 #include <ostream>
 #include <tuple>
+#include <algorithm>
 
 typedef uint32_t Color;
 #define Debug OutputDebugStringA
@@ -14,10 +15,11 @@ template <typename T, unsigned int N>
 class Matrix
 {
 private:
-    T _values[N] = { 0 };
+    T _values[N];
 
 public:
     Matrix() {};
+    // Matrix<float, N>() : _values({ 0.0 }) {};
     Matrix(T values[N])
     {
         for (int i = 0; i < N; i++)
@@ -87,6 +89,21 @@ public:
         }
         return mat;
     }
+    Matrix<T, N> operator*(const Matrix<Matrix<T, N>, N>& multiplyingMatrix) const
+    {
+        Matrix<T, N> mat;
+        for (int i = 0; i < N; i++)
+        {
+            T sum = 0;
+            for (int j = 0; j < N; j++)
+            {
+                sum += (*this)[j] * multiplyingMatrix[j][i];
+            }
+            mat[i] = sum;
+        }
+        return mat;
+    }
+
     Matrix<T, N> operator-(const Matrix<T, N>& value) const
     {
         Matrix<T, N> mat;
@@ -111,7 +128,7 @@ public:
     }
 };
 
-typedef Matrix<int, 3> Point;
+typedef Matrix<float, 3> Point;
 typedef Matrix<int, 2> PixelCoordinate;
 typedef std::vector<std::vector<Point>> ShapeData;
 
@@ -132,11 +149,12 @@ public:
     std::vector<Line> getLines() const
     {
         std::vector<Line> lines;
-        for (int i = 0; i < this->_vertices.size(); i++)
+        for (unsigned int i = 0; i < this->_vertices.size(); i++)
         {
             Line line{ this->_vertices[i], this->_vertices[(i + 1) % this->_vertices.size()] };
             lines.push_back(line);
         }
         return lines;
     }
+    const std::vector<Point> getVertices() const { return this->_vertices; };
 };

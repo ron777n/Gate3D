@@ -1,7 +1,6 @@
 #pragma once
 #include "Definitions.hpp"
 
-
 class Renderer
 {
 private:
@@ -10,17 +9,29 @@ private:
         int height;
         Color* pixels;
     } _frame;
-    Point _cameraPose;
+
+    struct {
+        float fNear;
+        float fFar;
+        float fFov;
+        float aspectRatio;
+        float fFovRad;
+    } _projectionNeeds;
+
+    Matrix<Matrix<float, 4>, 4> _projectionMatrix;
+    Point _cameraPose{ 0, 0, 0 };
     Matrix<float, 3> _cameraAngle;
+    void _reSetProjectionMatrix();
 public:
     Renderer();
-    Color** GetPixelsArrayPointer();
     void reSize(int width, int height);
+    Color** GetPixelsArrayPointer();
     void resetFrame();
-    void drawLine(Line line);
+    void drawLine(const Line& line);
+    void drawPolygon(const Face& face);
     Color& getPixel(int row, int column);
-    void moveCameraPos(Point diff);
-    Color& operator[](PixelCoordinate cord);
+    void moveCameraPos(const Point& diff);
+    Color& operator[](const PixelCoordinate& cord);
     Point& getCameraPose();
 };
 

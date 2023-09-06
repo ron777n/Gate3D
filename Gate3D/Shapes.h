@@ -13,7 +13,7 @@ private:
 public:
     Shape(Point& center, ShapeData& faces);
     std::vector<Point> getVertices() { return this->_vertices; };
-    std::vector<Face> getFaces() { return this->_faces; };
+    const std::vector<Face>& getFaces() { return this->_faces; };
 };
 
 Shape makeCube();
