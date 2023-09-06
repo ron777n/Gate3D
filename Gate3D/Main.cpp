@@ -11,8 +11,11 @@ void Program::update()
 {
     View.resetFrame();
     Shape shape = this->_shapes.back();
+    
     for (const Face& face : shape.getFaces())
     {
+        // View.drawPolygon(shape.getFaces()[4]);
+        View.drawPolygon(face);
         for (const Line& line : face.getLines())
         {
             View.drawLine(line);
@@ -61,15 +64,15 @@ void Program::onKeyDown(char key)
 void Program::scroll(int scrollAmount, int keys)
 {
     Point p;
-    p[2] = scrollAmount;
+    p[2] = 10 * (scrollAmount > 0? 1: -1);
     View.moveCameraPos(p);
 }
 
 void Program::onMouseMoved(int posX, int posY, int keysHeld)
 {
     PixelCoordinate pos(posX, posY);
-    PixelCoordinate diff = pos - this->_lastMousePos;
     this->_lastMousePos = pos;
+    PixelCoordinate diff = pos - this->_lastMousePos;
     if (keysHeld & 16)
     {
         Point p;

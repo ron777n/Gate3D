@@ -6,6 +6,7 @@
 #include <sstream>
 #include <ostream>
 #include <tuple>
+#include <algorithm>
 
 typedef uint32_t Color;
 #define Debug OutputDebugStringA
@@ -139,4 +140,5 @@ public:
         }
         return lines;
     }
+    const std::vector<Point> getVertices() const { return this->_vertices; };
 };

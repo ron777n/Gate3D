@@ -10,17 +10,18 @@ private:
         int height;
         Color* pixels;
     } _frame;
-    Point _cameraPose;
+    Point _cameraPose{0, 0, 0};
     Matrix<float, 3> _cameraAngle;
 public:
     Renderer();
     Color** GetPixelsArrayPointer();
     void reSize(int width, int height);
     void resetFrame();
-    void drawLine(Line line);
+    void drawLine(const Line& line);
+    void drawPolygon(const Face& face);
     Color& getPixel(int row, int column);
-    void moveCameraPos(Point diff);
-    Color& operator[](PixelCoordinate cord);
+    void moveCameraPos(const Point& diff);
+    Color& operator[](const PixelCoordinate& cord);
     Point& getCameraPose();
 };
 
