@@ -20,7 +20,7 @@ private:
     } _projectionNeeds;
 
     Matrix<Matrix<float, 4>, 4> _projectionMatrix;
-    Point _cameraPose{ 0, 0, 0 };
+    Point _cameraPose = Point(0.0, 0.0, 0.0);
     Matrix<float, 3> _cameraAngle;
     void _reSetProjectionMatrix();
 public:
@@ -34,6 +34,7 @@ public:
     void moveCameraPos(const Point& diff);
     Color& operator[](const PixelCoordinate& cord);
     Point& getCameraPose();
+    PixelCoordinate project(Point p);
 };
 
 extern Renderer View;

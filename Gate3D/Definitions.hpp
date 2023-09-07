@@ -142,7 +142,7 @@ typedef struct Line
 class Face
 {
 private:
-    std::vector<Point> _vertices{ 0 };
+    std::vector<Point> _vertices{ 0.0 };
 
 public:
     Face(std::vector<Point> vertices) : _vertices(vertices) {}

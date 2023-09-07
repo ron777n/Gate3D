@@ -30,7 +30,7 @@ Shape makeCube()
 {
     ShapeData shapeData;
     // each face's points' share one coordinate that is the same.
-    int vertices[8][3]
+    float vertices[8][3]
     {
         { 1, 1, 1 },
         { 1, 1, -1 },
@@ -56,12 +56,10 @@ Shape makeCube()
         std::vector<Point> points;
         for (int j = 0; j < 4; j++)
         {
-            points.push_back(Point(vertices[faces[i][j]]) * 50);
+            points.push_back(Point(vertices[faces[i][j]]));
         }
         shapeData.push_back(points);
     }
-
-    // int zeroPoint[3] = { 0, 0, 0 };
-    Point p(0, 0, 0);
+    Point p = Point(0, 0, 0);
     return Shape(p, shapeData);
 }

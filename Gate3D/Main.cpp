@@ -11,37 +11,44 @@ void Program::update()
 {
     View.resetFrame();
     Shape shape = this->_shapes.back();
+    std::vector<Line> lines;
     for (const Face& face : shape.getFaces())
     {
-        // View.drawPolygon(shape.getFaces()[4]);
+        // View.drawPolygon(shape.getFaces()[0]);
         View.drawPolygon(face);
         for (const Line& line : face.getLines())
         {
-            View.drawLine(line);
+            lines.push_back(line);
         }
     }
+    for (const Line& line : lines) 
+    {
+        View.drawLine(line);
+    
+    }
+
 }
 
 void Program::onKeyDown(char key)
 {
-    Point cameraMovement;
+    Point cameraMovement(0, 0, 0);
     switch (key)
     {
     case VK_RIGHT:
     {
-        cameraMovement[0] = 10;
+        cameraMovement[0] = 1;
     } break;
     case VK_LEFT:
     {
-        cameraMovement[0] = -10;
+        cameraMovement[0] = -1;
     } break;
     case VK_UP:
     {
-        cameraMovement[1] = 10;
+        cameraMovement[1] = 1;
     } break;
     case VK_DOWN:
     {
-        cameraMovement[1] = -10;
+        cameraMovement[1] = -1;
     } break;
     case VK_SPACE:
     {
@@ -56,7 +63,7 @@ void Program::onKeyDown(char key)
     }
     }
 
-    if (!(cameraMovement == Point()))
+    if (!(cameraMovement == Point(0, 0, 0)))
         View.moveCameraPos(cameraMovement);
 }
 
@@ -74,7 +81,7 @@ void Program::onMouseMoved(int posX, int posY, int keysHeld)
     PixelCoordinate diff = pos - this->_lastMousePos;
     if (keysHeld & 16)
     {
-        Point p;
+        Point p = {0};
         p[0] = diff[0];
         p[1] = -diff[1];
         View.moveCameraPos(p);
