@@ -1,28 +1,30 @@
 #include "Shapes.h"
 
+void Shape::_addFace(Face face)
+{
+    for (const Point& vertex : face.getVertices())
+    {
+        Point* target = nullptr;
+        for (Point& _vertex : this->_vertices)
+        {
+            if (vertex != _vertex)
+                continue;
+            target = &_vertex; // in case we'll need to make faces by PointsRefrence or something.
+            break;
+        }
+        if (!target)
+        {
+            this->_vertices.push_back(Point(vertex));
+        }
+    }
+    this->_faces.push_back(face);
+}
+
 Shape::Shape(Point& center, ShapeData& faces) : _center(center)
 {
     for (const std::vector<Point>& face : faces) // TODO: this ugly
     {
-        std::vector<Point> facePoints;
-        for (const Point& vertex : face)
-        {
-            Point* target = nullptr;
-            for (Point& _vertex : this->_vertices)
-            {
-                if (vertex == _vertex)
-                {
-                    target = &_vertex;
-                }
-            }
-            if (!target)
-            {
-                this->_vertices.push_back(Point(vertex));
-                target = &this->_vertices.back();
-            }
-            facePoints.push_back(*target);
-        }
-        this->_faces.push_back(Face(facePoints));
+        this->_addFace(Face(face));
     }
 }
 

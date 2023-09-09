@@ -9,6 +9,7 @@ private:
     Point _center;
     std::vector<Point> _vertices;
     std::vector<Face> _faces;
+    void _addFace(Face face);
 
 public:
     Shape(Point& center, ShapeData& faces);

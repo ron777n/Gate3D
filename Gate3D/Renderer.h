@@ -30,11 +30,11 @@ public:
     void resetFrame();
     void drawLine(const Line& line);
     void drawPolygon(const Face& face);
-    Color& getPixel(int row, int column);
     void moveCameraPos(const Point& diff);
     Color& operator[](const PixelCoordinate& cord);
     Point& getCameraPose();
     PixelCoordinate project(Point p);
+    Matrix<float, 2> getWindowSize() { return Matrix<float, 2>(this->_frame.width, this->_frame.height); };
 };
 
 extern Renderer View;

@@ -5,6 +5,8 @@ void Program::start()
 {
     Shape cube = makeCube();
     this->_shapes.push_back(cube);
+    // this->_normalizedMousePos *= 0;
+    // this->_lastMousePos *= 0;
 }
 
 void Program::update()
@@ -21,10 +23,10 @@ void Program::update()
             lines.push_back(line);
         }
     }
-    for (const Line& line : lines) 
+    for (const Line& line : lines)
     {
         View.drawLine(line);
-    
+
     }
 
 }
@@ -76,14 +78,23 @@ void Program::scroll(int scrollAmount, int keys)
 
 void Program::onMouseMoved(int posX, int posY, int keysHeld)
 {
-    PixelCoordinate pos(posX, posY);
-    this->_lastMousePos = pos;
-    PixelCoordinate diff = pos - this->_lastMousePos;
+    Matrix<float, 2> normalPos = Matrix<float, 2>(posX, posY) / View.getWindowSize();
+    Matrix<float, 2> diff = normalPos - this->_normalizedLastMousePos;
+    this->_normalizedLastMousePos = normalPos;
     if (keysHeld & 16)
     {
-        Point p = {0};
-        p[0] = diff[0];
-        p[1] = -diff[1];
-        View.moveCameraPos(p);
+        View.moveCameraPos(Point(diff[0], -diff[1], 0) * 5);
+    }
+    else if (keysHeld & MK_RBUTTON)
+    {
+        if (!diff[0] || !diff[1])
+            return;
+        float angle = atan((float)diff[1] / (float)diff[0]);
+        float x = cosf(angle),
+            y = sinf(angle);
+        int b = 0;
+        // Point diff = Point(diff[0], -diff[1], 0);
+
+        // View.RotateCameraPos();
     }
 }

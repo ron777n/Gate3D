@@ -7,7 +7,7 @@ class Program
 {
 private:
     std::vector<Shape> _shapes;
-    PixelCoordinate _lastMousePos;
+    Matrix<float, 2> _normalizedLastMousePos;
 public:
     Program() {};
     void start();

@@ -31,13 +31,13 @@ void Renderer::_reSetProjectionMatrix()
     this->_projectionNeeds.aspectRatio = (float)this->_frame.height / this->_frame.width;
     this->_projectionNeeds.fFovRad = 1.0 / tanf(this->_projectionNeeds.fFov * 0.5 / 180 * 3.14159);
 
-    this->_projectionMatrix[0][0] = this->_projectionNeeds.aspectRatio * 
+    this->_projectionMatrix[0][0] = this->_projectionNeeds.aspectRatio *
         this->_projectionNeeds.fFovRad * 0.5 * this->_frame.width;
     this->_projectionMatrix[1][1] = this->_projectionNeeds.fFovRad
         * 0.5 * this->_frame.height;
     this->_projectionMatrix[2][2] = this->_projectionNeeds.fFar /
         (this->_projectionNeeds.fFar - this->_projectionNeeds.fNear);
-    this->_projectionMatrix[2][3] = (-this->_projectionNeeds.fFar * 
+    this->_projectionMatrix[2][3] = (-this->_projectionNeeds.fFar *
         this->_projectionNeeds.fNear)
         / (this->_projectionNeeds.fFar - this->_projectionNeeds.fNear);
     this->_projectionMatrix[3][2] = 1.0;
@@ -126,16 +126,11 @@ void Renderer::drawPolygon(const Face& face)
             // int x2 = min(intersections[i + 1], this->_frame.width / 2);
             for (int x = x1; x <= x2; x++) {
                 // if (x > this->_frame.width / 2)
-                if (x > - this->_frame.width / 2 && x < this->_frame.width / 2)
-                (*this)[PixelCoordinate(x, y)] = 0x00FF0000;
+                if (x > -this->_frame.width / 2 && x < this->_frame.width / 2)
+                    (*this)[PixelCoordinate(x, y)] = 0x00FF0000;
             }
         }
     }
-}
-
-Color& Renderer::getPixel(int row, int column)
-{
-    return this->_frame.pixels[(this->_frame.height / 2 - row) * this->_frame.width + column - this->_frame.width / 2];
 }
 
 Color& Renderer::operator[](const PixelCoordinate& cord)

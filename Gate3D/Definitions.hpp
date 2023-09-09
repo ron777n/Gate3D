@@ -11,32 +11,54 @@
 typedef uint32_t Color;
 #define Debug OutputDebugStringA
 
+template <typename T>
+struct has_subscript_operator {
+    // We use SFINAE to check if the expression decltype(std::declval<T>()[0]) is valid
+    template <typename U>
+    static std::true_type test(decltype(std::declval<U>()[0])*);
+
+    // Fallback for invalid expressions
+    template <typename U>
+    static std::false_type test(...);
+
+    // A boolean constant indicating whether T has the [] operator
+    static constexpr bool value = decltype(test<T>(nullptr))::value;
+};
+
 template <typename T, unsigned int N>
 class Matrix
 {
 private:
-    T _values[N];
+    T _values[N] = {};
+    template <typename Other, typename BinaryOp>
+    friend static void _transform(Matrix<T, N>& transformer, const Other& other, BinaryOp op) {
+        for (unsigned int i = 0; i < N; i++) {
+            if constexpr (has_subscript_operator<Other>::value) {
+                // If other has operator[] and op can be invoked with T& and T::value_type
+                transformer._values[i] = op(transformer._values[i], (const T&)other[i]);
+            }
+            else {
+                // Fallback to non-operator[] case
+                transformer._values[i] = op(transformer._values[i], (const T&)other);
+            }
+        }
+    }
+
 
 public:
     Matrix() {};
     // Matrix<float, N>() : _values({ 0.0 }) {};
-    Matrix(T values[N])
+    template <typename Other>
+    Matrix(const Other& other)
     {
-        for (int i = 0; i < N; i++)
-            this->_values[i] = values[i];
-    };
-    Matrix(const Matrix<T, N>& other)
-    {
-        for (int i = 0; i < N; i++)
-            this->_values[i] = other[i];
-    };
+        *this = other;
+    }
     template<typename... Args>
     Matrix(Args... args)
     {
-        if (sizeof...(args) != N)
-            throw std::out_of_range("Invalid number of arguments for constructor of matrix");
-
-        T tempArray[N] = { args... };
+        static_assert(sizeof...(args) == N, "Invalid number of arguments for constructor of matrix");
+        // static_assert(std::is_same_v<T, Args...>, "Arguments must be of type T");
+        T tempArray[N] = { T(args)... };
         for (unsigned int i = 0; i < N; i++)
         {
             this->_values[i] = tempArray[i];
@@ -57,36 +79,52 @@ public:
         else
             return this->_values[index];
     }
+    template <typename Other>
+    Matrix<T, N> operator/(const Other& divisor) const
+    {
+        Matrix<T, N> ret(*this);
+        _transform(ret, divisor, [](const T& a, const T& b) {return a / b; });
+        return ret;
+    }
+    template <typename Other>
+    Matrix<T, N>& operator=(const Other& other)
+    {
+        _transform(*this, other, [](const T&, const T& other) {return other; });
+        return *this;
+    }
     Matrix<T, N> operator+(const Matrix<T, N>& addition) const
     {
-        T vals[N] = { 0 };
-        for (int i = 0; i < N; i++)
-        {
-            vals[i] = (*this)[i] + addition[i];
-        }
-        return Matrix<T, N>(vals);
+        Matrix<T, N> ret;
+        _transform(ret, addition, std::plus<T>());
+        return ret;
     }
     void operator+=(const Matrix<T, N>& addition)
     {
-        for (int i = 0; i < N; i++)
-            this->_values[i] += addition[i];
+        _transform(*this, addition, std::plus<T>());
     }
     bool operator==(const Matrix<T, N>& other) const
     {
         for (int i = 0; i < N; i++)
         {
-            if (!((*this)[i] == other[i]))
+            if ((*this)[i] != other[i])
                 return false;
         }
         return true;
     }
-    Matrix<T, N> operator*(const T& value) const
+    bool operator!=(const Matrix<T, N>& other) const
     {
-        Matrix<T, N> mat;
         for (int i = 0; i < N; i++)
         {
-            mat[i] = (*this)[i] * value;
+            if ((*this)[i] == other[i])
+                return false;
         }
+        return true;
+    }
+    template <typename Other>
+    Matrix<T, N> operator*(const Other& other) const
+    {
+        Matrix<T, N> mat(*this);
+        _transform(mat, other, std::multiplies<T>());
         return mat;
     }
     Matrix<T, N> operator*(const Matrix<Matrix<T, N>, N>& multiplyingMatrix) const
@@ -103,20 +141,17 @@ public:
         }
         return mat;
     }
-
-    Matrix<T, N> operator-(const Matrix<T, N>& value) const
+    template <typename Other>
+    Matrix<T, N> operator-(const Other& value) const
     {
-        Matrix<T, N> mat;
-        for (int i = 0; i < N; i++)
-            mat[i] = (*this)[i] - value[i];
+        Matrix<T, N> mat(*this);
+        _transform(mat, value, std::minus<T>());
         return mat;
     }
-    void operator*=(const T& value)
+    template <typename Other>
+    void operator*=(const Other& value)
     {
-        for (int i = 0; i < N; i++)
-        {
-            (*this)[i] = (*this)[i] * value;
-        }
+        _transform(*this, value, std::multiplies<T>());
     }
     friend std::ostream& operator<<(std::ostream& os, const Matrix<T, N>& mat)
     {
