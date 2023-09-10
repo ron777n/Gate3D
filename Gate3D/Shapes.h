@@ -14,22 +14,23 @@ private:
     void _addFace(Face face);
 
 public:
-    Shape(Point& center, ShapeData& faces);
+    Shape(const ShapeData& faces);
+    Shape(const ShapeData& faces, const Point& center);
+    Shape(const ShapeData& faces, const Point& center, const Rotation& rotation);
     std::vector<Point> getVertices() { return this->_vertices; };
     const std::vector<Face> getFaces() 
-    {       
+    {     
         std::vector<Face> faces;
         for (const Face& face : this->_faces) 
         {
             std::vector<Point> vertices;
             for (const Point& vertex : face.getVertices()) 
             {
-                vertices.push_back(vertex * this->_rotationMatrix);
+                vertices.push_back(vertex * this->_rotationMatrix + this->_center);
             }
             faces.push_back(Face(vertices));
         }
         return faces;
-        // return this->_faces; 
     };
     Rotation getRotation() const { return this->_rotation; };
     void setRotation(const Rotation& rot);

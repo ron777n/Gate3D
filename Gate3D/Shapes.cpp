@@ -21,18 +21,35 @@ void Shape::_addFace(Face face)
     this->_faces.push_back(face);
 }
 
-Shape::Shape(Point& center, ShapeData& faces) : _center(center)
+Shape::Shape(const ShapeData& faces)
 {
-    for (const std::vector<Point>& face : faces) // TODO: this ugly
+    for (const std::vector<Point>& face : faces)
     {
         this->_addFace(Face(face));
     }
     this->setRotation(Rotation());
 }
+Shape::Shape(const ShapeData& faces, const Point& center)
+{
+    this->_center = center;
+    for (const std::vector<Point>& face : faces)
+    {
+        this->_addFace(Face(face));
+    }
+    this->setRotation(Rotation());
+}  
+Shape::Shape(const ShapeData& faces, const Point& center, const Rotation& rot)
+{
+    this->setRotation(rot);
+    this->_center = center;
+    for (const std::vector<Point>& face : faces)
+    {
+        this->_addFace(Face(face));
+    }
+}
 
 void Shape::setRotation(const Rotation& rot)
 {
-    
     this->_rotation = rot;
     this->_rotationMatrix[0][0] = cosf(rot[1]) * cosf(rot[2]);
     this->_rotationMatrix[0][1] = cosf(rot[1]) * sinf(rot[2]);
@@ -45,20 +62,41 @@ void Shape::setRotation(const Rotation& rot)
     this->_rotationMatrix[2][2] = cosf(rot[0]) * cosf(rot[1]);
 }
 
+struct triangle 
+{
+    float normalv[3];
+    float v1[3];
+    float v2[3];
+    float v3[3];
+    char attr[2];
+};
+
 Shape LoadModel(std::string fileName)
 {
+    // return makeCube();
     std::ifstream stl(fileName, std::ios::binary);
     if (!stl) 
     {
         throw std::exception("unable to open file");
     }
-    char header[85] = { 0 };
-    stl.seekg(84, stl.beg);
-    int verticesCount = 0;
-    stl.read((char*)&verticesCount, 1);
+    stl.seekg(80, stl.beg);
+    unsigned int verticesCount = 0;
+    stl.read((char*)&verticesCount, 4);
+    struct triangle triangle1;
+    ShapeData shapeData;
+    Point offset(109.525009, 38.2937431, 415.288147);
+    for(unsigned int i = 0; i < verticesCount; i++)
+    {                              
+        std::vector<Point> points;
+        stl.read((char*)&triangle1, 50);
+        points.push_back(Point(triangle1.v1) + offset);
+        points.push_back(Point(triangle1.v2) + offset);
+        points.push_back(Point(triangle1.v3) + offset);
+        shapeData.push_back(points);
+    }
 
     stl.close();
-    return makeCube();
+    return Shape(shapeData, Point(0, 0, -500), Rotation(3.14/2, 0, 0));
 }
 
 Shape makeCube()
@@ -95,6 +133,5 @@ Shape makeCube()
         }
         shapeData.push_back(points);
     }
-    Point p = Point(0, 0, 0);
-    return Shape(p, shapeData);
+    return Shape(shapeData);
 }

@@ -3,32 +3,28 @@
 
 void Program::start()
 {
-    Shape cube = LoadModel("saves\\darthvader_lowpoly_head.STL");
-    this->_shapes.push_back(cube);
-    // this->_normalizedMousePos *= 0;
-    // this->_lastMousePos *= 0;
+    Shape loaded = LoadModel("saves\\darthvader_lowpoly_head.STL");
+    this->_shapes.push_back(loaded);
 }
 
 void Program::update(float deltaTime)
 {
+    // if (deltaTime)
+    //     return;
     View.resetFrame();
     Shape shape = this->_shapes.back();
     std::vector<Line> lines;
     this->_shapes[0].setRotation(this->_shapes[0].getRotation() + (deltaTime / 60));
     for (const Face& face : shape.getFaces())
     {
-        // View.drawPolygon(shape.getFaces()[0]);
         View.drawPolygon(face);
         for (const Line& line : face.getLines())
-        {
             lines.push_back(line);
-        }
     }
     for (const Line& line : lines)
     {
         View.drawLine(line);
     }
-
 }
 
 void Program::onKeyDown(char key)
@@ -54,9 +50,7 @@ void Program::onKeyDown(char key)
     } break;
     case VK_SPACE:
     {
-        std::stringstream egg;
-        egg << "Camera Pos: " << View.getCameraPose() << std::endl;
-        Debug(egg.str().c_str());
+        this->update(0);
     } break;
     default:
     {
@@ -88,7 +82,8 @@ void Program::onMouseMoved(int posX, int posY, int keysHeld)
     else if (keysHeld & MK_RBUTTON)
     {
         Rotation rot = this->_shapes[0].getRotation();
-        rot[2] += diff[0] * 3.14;
+        rot[0] += diff[1] * 3.14;
+        rot[1] += diff[0] * 3.14;
         // rot[1] += diff[1] * 3.14;
         // std::stringstream egg;
         // egg << "angle: " << angle << '\n';

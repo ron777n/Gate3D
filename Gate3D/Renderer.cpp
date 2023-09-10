@@ -149,6 +149,8 @@ PixelCoordinate Renderer::project(Point vertex)
     Matrix<float, 4> p = Matrix<float, 4>(vertex[0] + this->_cameraPose[0],
         vertex[1] - this->_cameraPose[1], vertex[2] + this->_cameraPose[2], 1);
     p = p * this->_projectionMatrix;
+    if (p[3] == 0)
+        return PixelCoordinate(p[0], p[1]);
     return PixelCoordinate(p[0] / p[3], p[1] / p[3]);
 }
 
