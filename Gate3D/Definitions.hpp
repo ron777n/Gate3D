@@ -94,7 +94,7 @@ public:
     }
     Matrix<T, N> operator+(const Matrix<T, N>& addition) const
     {
-        Matrix<T, N> ret;
+        Matrix<T, N> ret(*this);
         _transform(ret, addition, std::plus<T>());
         return ret;
     }
@@ -164,6 +164,7 @@ public:
 };
 
 typedef Matrix<float, 3> Point;
+typedef Matrix<float, 3> Rotation;
 typedef Matrix<int, 2> PixelCoordinate;
 typedef std::vector<std::vector<Point>> ShapeData;
 

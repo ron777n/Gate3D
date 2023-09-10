@@ -49,7 +49,7 @@ void Renderer::resetFrame()
 {
     for (int i = 0; i < this->_frame.width * this->_frame.height; i++)
     {
-        this->_frame.pixels[i] = 0x0000FF00;
+        this->_frame.pixels[i] = 0x00FFFFFF;
     }
 }
 
@@ -122,12 +122,13 @@ void Renderer::drawPolygon(const Face& face)
         for (size_t i = 0; i < intersections.size(); i += 2) {
             int x1 = intersections[i],
                 x2 = intersections[i + 1];
-            // int x1 = max(intersections[i], -this->_frame.width / 2);
+            x1 = max(x1, -this->_frame.width / 2),
+                x2 = min(x2, this->_frame.width / 2);
             // int x2 = min(intersections[i + 1], this->_frame.width / 2);
             for (int x = x1; x <= x2; x++) {
                 // if (x > this->_frame.width / 2)
-                if (x > -this->_frame.width / 2 && x < this->_frame.width / 2)
-                    (*this)[PixelCoordinate(x, y)] = 0x00FF0000;
+                //if (x > -this->_frame.width / 2 && x < this->_frame.width / 2)
+                (*this)[PixelCoordinate(x, y)] = 0x00FF0000;
             }
         }
     }

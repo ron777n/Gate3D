@@ -1,4 +1,5 @@
 #include "Shapes.h"
+#include <fstream>
 
 void Shape::_addFace(Face face)
 {
@@ -26,6 +27,38 @@ Shape::Shape(Point& center, ShapeData& faces) : _center(center)
     {
         this->_addFace(Face(face));
     }
+    this->setRotation(Rotation());
+}
+
+void Shape::setRotation(const Rotation& rot)
+{
+    
+    this->_rotation = rot;
+    this->_rotationMatrix[0][0] = cosf(rot[1]) * cosf(rot[2]);
+    this->_rotationMatrix[0][1] = cosf(rot[1]) * sinf(rot[2]);
+    this->_rotationMatrix[0][2] = -sinf(rot[1]);
+    this->_rotationMatrix[1][0] = sinf(rot[0]) * sinf(rot[1]) * cosf(rot[2]) - cosf(rot[0]) * sinf(rot[2]);
+    this->_rotationMatrix[1][1] = sinf(rot[0]) * sinf(rot[1]) * sinf(rot[2]) + cosf(rot[0]) * cosf(rot[2]);
+    this->_rotationMatrix[1][2] = sinf(rot[0]) * cosf(rot[1]);
+    this->_rotationMatrix[2][0] = cosf(rot[0]) * sinf(rot[1]) * cosf(rot[2]) + sinf(rot[0]) * sinf(rot[2]);
+    this->_rotationMatrix[2][1] = cosf(rot[0]) * sinf(rot[1]) * sinf(rot[2]) - sinf(rot[0]) * cosf(rot[2]);
+    this->_rotationMatrix[2][2] = cosf(rot[0]) * cosf(rot[1]);
+}
+
+Shape LoadModel(std::string fileName)
+{
+    std::ifstream stl(fileName, std::ios::binary);
+    if (!stl) 
+    {
+        throw std::exception("unable to open file");
+    }
+    char header[85] = { 0 };
+    stl.seekg(84, stl.beg);
+    int verticesCount = 0;
+    stl.read((char*)&verticesCount, 1);
+
+    stl.close();
+    return makeCube();
 }
 
 Shape makeCube()

@@ -5,6 +5,7 @@
 #include "Main.h"
 #include "Renderer.h"
 #include <Windowsx.h>
+#include <chrono>
 
 static bool quit = false;
 
@@ -51,6 +52,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
     return 0;
 }
+auto lastTime = std::chrono::high_resolution_clock::now();
 
 LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
@@ -63,7 +65,9 @@ LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM w
         static PAINTSTRUCT paint;
         static HDC device_context;
         device_context = BeginPaint(window_handle, &paint);
-        program.update();
+        // auto currentTime = std::chrono::high_resolution_clock::now();
+        program.update(0.1);
+        // lastTime = currentTime;
         BitBlt(device_context,
             paint.rcPaint.left, paint.rcPaint.top,
             paint.rcPaint.right - paint.rcPaint.left, paint.rcPaint.bottom - paint.rcPaint.top,
