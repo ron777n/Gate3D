@@ -55,8 +55,8 @@ void Renderer::resetFrame()
 
 void Renderer::drawLine(const Line& line)
 {
-    PixelCoordinate a = this->project(line.a);
-    PixelCoordinate b = this->project(line.b);
+    PixelCoordinate a = this->projectCamera(this->applyCameraOffset(line.a));
+    PixelCoordinate b = this->projectCamera(this->applyCameraOffset(line.b));
 
     int sx = a[0] < b[0] ? 1 : -1, sy = a[1] < b[1] ? 1 : -1;
     int dx = abs(b[0] - a[0]), dy = abs(b[1] - a[1]);
@@ -85,14 +85,17 @@ void Renderer::drawLine(const Line& line)
     // this->getPixel(line.b[1], line.b[0]) = 0x00FF0000;
 }
 
-void Renderer::drawPolygon(const Face& face)
+bool Renderer::drawPolygon(const Face& face)
 {
     std::vector<PixelCoordinate> vertices;
     int maxY = -INT_MAX;
     int minY = INT_MAX;
     for (const Point& vertex : face.getVertices())
     {
-        PixelCoordinate projectedVertex = this->project(vertex);
+        Point offsetVertex = this->applyCameraOffset(vertex);
+        if (offsetVertex.dotProduct(face.getNormal()) >= 0)
+            return false;
+        PixelCoordinate projectedVertex = this->projectCamera(offsetVertex);
         minY = min(minY, projectedVertex[1]);
         maxY = max(maxY, projectedVertex[1] + 1);
         vertices.push_back(projectedVertex);
@@ -124,14 +127,17 @@ void Renderer::drawPolygon(const Face& face)
                 x2 = intersections[i + 1];
             x1 = max(x1, -this->_frame.width / 2),
                 x2 = min(x2, this->_frame.width / 2);
-            // int x2 = min(intersections[i + 1], this->_frame.width / 2);
+            Matrix<float, 2> screenSize = Matrix<float, 2>(this->_frame.height, this->_frame.width);
             for (int x = x1; x <= x2; x++) {
-                // if (x > this->_frame.width / 2)
-                //if (x > -this->_frame.width / 2 && x < this->_frame.width / 2)
-                (*this)[PixelCoordinate(x, y)] = 0x00FF0000;
+                PixelCoordinate cord = PixelCoordinate(x, y);
+                face.getPixelColor(
+                    (*this)[cord],
+                    Matrix<float, 2>(cord[0], cord[1]) / screenSize * 2 - 1.0
+                );
             }
         }
     }
+    return true;
 }
 
 Color& Renderer::operator[](const PixelCoordinate& cord)
@@ -144,10 +150,16 @@ Point& Renderer::getCameraPose()
     return this->_cameraPose;
 }
 
-PixelCoordinate Renderer::project(Point vertex)
+Point Renderer::applyCameraOffset(const Point& vertex) const
 {
-    Matrix<float, 4> p = Matrix<float, 4>(vertex[0] + this->_cameraPose[0],
-        vertex[1] - this->_cameraPose[1], vertex[2] + this->_cameraPose[2], 1);
+    return Point(vertex[0] + this->_cameraPose[0],
+        vertex[1] + this->_cameraPose[1], vertex[2] + this->_cameraPose[2]);
+}
+
+PixelCoordinate Renderer::projectCamera(const Point& vertex) const
+{
+    // Point offsetPoint = this->applyCameraOffset(vertex);
+    Matrix<float, 4> p = Matrix<float, 4>(vertex[0], vertex[1], vertex[2], 1);
     p = p * this->_projectionMatrix;
     if (p[3] == 0)
         return PixelCoordinate(p[0], p[1]);

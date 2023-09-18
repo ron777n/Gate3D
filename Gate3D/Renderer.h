@@ -29,11 +29,12 @@ public:
     Color** GetPixelsArrayPointer();
     void resetFrame();
     void drawLine(const Line& line);
-    void drawPolygon(const Face& face);
+    bool drawPolygon(const Face& face);
     void moveCameraPos(const Point& diff);
     Color& operator[](const PixelCoordinate& cord);
     Point& getCameraPose();
-    PixelCoordinate project(Point p);
+    PixelCoordinate projectCamera(const Point& p) const;
+    Point applyCameraOffset(const Point& vertex) const;
     Matrix<float, 2> getWindowSize() { return Matrix<float, 2>(this->_frame.width, this->_frame.height); };
 };
 

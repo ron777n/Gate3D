@@ -8,7 +8,25 @@
 #include <tuple>
 #include <algorithm>
 
-typedef uint32_t Color;
+struct Color
+{
+    unsigned char blue;
+    unsigned char green;
+    unsigned char red;
+    unsigned char empty;
+    void operator=(UINT32 a)
+    {
+        memcpy(this, &a, sizeof(UINT32));
+    }
+    void operator=(const Color& color)
+    {
+        this->empty = 0;
+        this->red = color.red;
+        this->green = color.green;
+        this->blue = color.blue;
+    }
+    Color(unsigned char red, unsigned char green, unsigned char blue) : empty(0), red(red), green(green), blue(blue) {};
+};
 #define Debug OutputDebugStringA
 
 template <typename T>
@@ -64,6 +82,15 @@ public:
             this->_values[i] = tempArray[i];
         }
     }
+    float dotProduct(Matrix<T, N> mat) const
+    {
+        float sum = 0;
+        for (int i = 0; i < N; i++)
+        {
+            sum += (*this)[i] * mat[i];
+        }
+        return sum;
+    }
 
     const T& operator[](int index) const
     {
@@ -115,8 +142,9 @@ public:
     {
         for (int i = 0; i < N; i++)
         {
-            if ((*this)[i] == other[i])
-                return false;
+            if ((*this)[i] != other[i])
+                continue;
+            return false;
         }
         return true;
     }
@@ -166,7 +194,7 @@ public:
 typedef Matrix<float, 3> Point;
 typedef Matrix<float, 3> Rotation;
 typedef Matrix<int, 2> PixelCoordinate;
-typedef std::vector<std::vector<Point>> ShapeData;
+// typedef std::vector<std::vector<Point>> ShapeData;
 
 typedef struct Line
 {
@@ -179,9 +207,10 @@ class Face
 {
 private:
     std::vector<Point> _vertices{ 0.0 };
+    Point _normal;
 
 public:
-    Face(std::vector<Point> vertices) : _vertices(vertices) {}
+    Face(std::vector<Point> vertices, Point normal = Point()) : _vertices(vertices), _normal(normal) {}
     std::vector<Line> getLines() const
     {
         std::vector<Line> lines;
@@ -193,4 +222,13 @@ public:
         return lines;
     }
     const std::vector<Point> getVertices() const { return this->_vertices; };
+    const Point& getNormal() const { return this->_normal; };
+    float dotProduct(const Point& comparisonVector) const
+    {
+        return this->_vertices[0].dotProduct(comparisonVector);
+    };
+    void getPixelColor(Color& outColor, const Matrix<float, 2>& sourceCoordinate) const // i think that using the color& is faster than returning so here ya go
+    {
+        outColor = Color(255, 0, 0);
+    }
 };

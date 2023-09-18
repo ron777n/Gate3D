@@ -3,7 +3,8 @@
 
 void Program::start()
 {
-    Shape loaded = LoadModel("saves\\darthvader_lowpoly_head.STL");
+    Shape loaded = LoadModel("saves\\vader.stl");
+    loaded.setCenter(Point(0, 0, -700)); // in case it's a big model
     this->_shapes.push_back(loaded);
 }
 
@@ -14,10 +15,11 @@ void Program::update(float deltaTime)
     View.resetFrame();
     Shape shape = this->_shapes.back();
     std::vector<Line> lines;
-    this->_shapes[0].setRotation(this->_shapes[0].getRotation() + (deltaTime / 60));
+    this->_shapes[0].setRotation(this->_shapes[0].getRotation());
     for (const Face& face : shape.getFaces())
     {
-        View.drawPolygon(face);
+        if (!View.drawPolygon(face))
+            continue;
         for (const Line& line : face.getLines())
             lines.push_back(line);
     }
@@ -84,13 +86,6 @@ void Program::onMouseMoved(int posX, int posY, int keysHeld)
         Rotation rot = this->_shapes[0].getRotation();
         rot[0] += diff[1] * 3.14;
         rot[1] += diff[0] * 3.14;
-        // rot[1] += diff[1] * 3.14;
-        // std::stringstream egg;
-        // egg << "angle: " << angle << '\n';
-        // Debug(egg.str().c_str());
         this->_shapes[0].setRotation(rot);
-        // Point diff = Point(diff[0], -diff[1], 0);
-
-        // View.RotateCameraPos();
     }
 }

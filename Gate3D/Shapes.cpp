@@ -21,28 +21,28 @@ void Shape::_addFace(Face face)
     this->_faces.push_back(face);
 }
 
-Shape::Shape(const ShapeData& faces)
+Shape::Shape(const std::vector<Face>& faces)
 {
-    for (const std::vector<Point>& face : faces)
+    for (const Face& face : faces)
+    {
+        this->_addFace(face);
+    }
+    this->setRotation(Rotation());
+}
+Shape::Shape(const std::vector<Face>& faces, const Point& center)
+{
+    this->_center = center;
+    for (const Face& face : faces)
     {
         this->_addFace(Face(face));
     }
     this->setRotation(Rotation());
 }
-Shape::Shape(const ShapeData& faces, const Point& center)
-{
-    this->_center = center;
-    for (const std::vector<Point>& face : faces)
-    {
-        this->_addFace(Face(face));
-    }
-    this->setRotation(Rotation());
-}  
-Shape::Shape(const ShapeData& faces, const Point& center, const Rotation& rot)
+Shape::Shape(const std::vector<Face>& faces, const Point& center, const Rotation& rot)
 {
     this->setRotation(rot);
     this->_center = center;
-    for (const std::vector<Point>& face : faces)
+    for (const Face& face : faces)
     {
         this->_addFace(Face(face));
     }
@@ -62,7 +62,7 @@ void Shape::setRotation(const Rotation& rot)
     this->_rotationMatrix[2][2] = cosf(rot[0]) * cosf(rot[1]);
 }
 
-struct triangle 
+struct triangle
 {
     float normalv[3];
     float v1[3];
@@ -75,7 +75,7 @@ Shape LoadModel(std::string fileName)
 {
     // return makeCube();
     std::ifstream stl(fileName, std::ios::binary);
-    if (!stl) 
+    if (!stl)
     {
         throw std::exception("unable to open file");
     }
@@ -83,25 +83,24 @@ Shape LoadModel(std::string fileName)
     unsigned int verticesCount = 0;
     stl.read((char*)&verticesCount, 4);
     struct triangle triangle1;
-    ShapeData shapeData;
-    Point offset(109.525009, 38.2937431, 415.288147);
-    for(unsigned int i = 0; i < verticesCount; i++)
-    {                              
+    std::vector<Face> faces;
+    for (unsigned int i = 0; i < verticesCount; i++)
+    {
         std::vector<Point> points;
         stl.read((char*)&triangle1, 50);
-        points.push_back(Point(triangle1.v1) + offset);
-        points.push_back(Point(triangle1.v2) + offset);
-        points.push_back(Point(triangle1.v3) + offset);
-        shapeData.push_back(points);
+        points.push_back(Point(triangle1.v1));
+        points.push_back(Point(triangle1.v2));
+        points.push_back(Point(triangle1.v3));
+        faces.push_back(Face(points, triangle1.normalv));
     }
 
     stl.close();
-    return Shape(shapeData, Point(0, 0, -500), Rotation(3.14/2, 0, 0));
+    return Shape(faces);
 }
 
 Shape makeCube()
 {
-    ShapeData shapeData;
+    std::vector<Face> shapeFaces;
     // each face's points' share one coordinate that is the same.
     float vertices[8][3]
     {
@@ -131,7 +130,7 @@ Shape makeCube()
         {
             points.push_back(Point(vertices[faces[i][j]]));
         }
-        shapeData.push_back(points);
+        shapeFaces.push_back(Face(points));
     }
-    return Shape(shapeData);
+    return Shape(shapeFaces);
 }
