@@ -3,8 +3,8 @@
 
 void Program::start()
 {
-    Shape loaded = LoadModel("saves\\vader.stl");
-    loaded.setCenter(Point(0, 0, -700)); // in case it's a big model
+    Shape loaded = LoadModel("saves\\cube.stl");
+    loaded.setCenter(Point(0, 0, -70)); // in case it's a big model
     this->_shapes.push_back(loaded);
 }
 
@@ -18,6 +18,8 @@ void Program::update(float deltaTime)
     this->_shapes[0].setRotation(this->_shapes[0].getRotation());
     for (const Face& face : shape.getFaces())
     {
+        View.drawTriangle(face);
+        continue;
         if (!View.drawPolygon(face))
             continue;
         for (const Line& line : face.getLines())

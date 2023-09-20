@@ -85,6 +85,58 @@ void Renderer::drawLine(const Line& line)
     // this->getPixel(line.b[1], line.b[0]) = 0x00FF0000;
 }
 
+bool Renderer::drawTriangle(const Face& face)
+{
+    std::vector<PixelCoordinate> vertices; // = face.getVertices();
+    for (const Point& vertex : face.getVertices())
+    {
+        Point offsetVertex = this->applyCameraOffset(vertex);
+        if (offsetVertex.dotProduct(face.getNormal()) >= 0)
+            return false;
+        PixelCoordinate projectedVertex = this->projectCamera(offsetVertex);
+        vertices.push_back(projectedVertex);
+    }
+    if (vertices.size() != 3)
+        throw std::exception("Invalid vertices count of triangle.");
+    if (vertices[1][1] < vertices[0][1])
+        std::swap(vertices[0], vertices[1]);
+    if (vertices[2][1] < vertices[0][1])
+        std::swap(vertices[0], vertices[2]);
+    if (vertices[2][1] < vertices[1][1])
+        std::swap(vertices[1], vertices[2]);
+
+    int dx1 = vertices[1][0] - vertices[0][0];
+    int dy1 = vertices[1][1] - vertices[0][1];
+    int dx2 = vertices[2][0] - vertices[0][0];
+    int dy2 = vertices[2][1] - vertices[0][1];
+    float daxStep = 0, dbxStep = 0;
+    if (dy1) daxStep = dx1 / (float)abs(dy1);
+    if (dy2) dbxStep = dx2 / (float)abs(dy2);
+    int startX = vertices[0][0], endX = vertices[1][0];
+    int startY = vertices[0][1], endY = vertices[1][1];
+    for (int i = startY; i <= endY; i++)
+    {
+        int ax = startX + (float)(i - startY) * daxStep;
+        int bx = startX + (float)(i - startY) * dbxStep;
+        if (ax > bx)
+        {
+            std::swap(ax, bx);
+        }
+        float tstep = 1.0f / (bx - ax);
+        float t = 0;
+        for (int j = ax; j < bx; j++)
+        {
+            std::stringstream egg;
+            // float xLoc = , yLoc;
+            // egg << t << "\n";
+            // egg << "relative coordinate: " << i << ", " << j << "\n";
+            // Debug(egg.str().c_str());
+            face.getPixelColor((*this)[PixelCoordinate(i, j)], Matrix<float, 2>(i, j));
+            t += tstep;
+        }
+    }
+}
+
 bool Renderer::drawPolygon(const Face& face)
 {
     std::vector<PixelCoordinate> vertices;

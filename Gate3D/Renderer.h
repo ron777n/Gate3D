@@ -30,6 +30,7 @@ public:
     void resetFrame();
     void drawLine(const Line& line);
     bool drawPolygon(const Face& face);
+    bool drawTriangle(const Face& face);
     void moveCameraPos(const Point& diff);
     Color& operator[](const PixelCoordinate& cord);
     Point& getCameraPose();
